@@ -15,7 +15,6 @@ export async function apiV1Routes(fastify: FastifyInstance) {
     try {
       const records = await providerManager.getLatestPrices();
       
-      // ذخیره در دیتابیس برای تاریخچه
       for (const record of records) {
         try {
           DatabaseService.saveRecord(record);
@@ -36,9 +35,15 @@ export async function apiV1Routes(fastify: FastifyInstance) {
     }
   });
 
-  // دریافت تاریخچه یک دارایی خاص
+  // دریافت تاریخچه یک دارایی خاص با اعتبارسنجی ورودی
   fastify.get('/api/v1/history/:symbol', async (request: FastifyRequest<{ Params: { symbol: string } }>, reply: FastifyReply) => {
     const { symbol } = request.params;
+    
+    if (!symbol || symbol.length > 20) {
+      reply.status(400);
+      return { success: false, error: 'Invalid symbol parameter' };
+    }
+
     try {
       const history = DatabaseService.getHistory(symbol.toUpperCase());
       return {
@@ -53,14 +58,28 @@ export async function apiV1Routes(fastify: FastifyInstance) {
     }
   });
 
-  // مانیتورینگ سلامت سیستم و منابع
+  // مانیتورینگ سلامت پیشرفته سیستم و منابع
   fastify.get('/api/v1/health', async (request: FastifyRequest, reply: FastifyReply) => {
     const now = Math.floor(Date.now() / 1000);
+    
+    // تست زنده دیتابیس
+    let dbStatus = 'online';
+    try {
+      DatabaseService.getHistory('USD', 1);
+    } catch (e) {
+      dbStatus = 'error';
+    }
+
     return {
-      status: 'online',
-      database: 'connected',
+      status: dbStatus === 'online' ? 'healthy' : 'degraded',
       timestamp: now,
-      providers: ['source_a (online)', 'source_b (online)']
+      services: {
+        database: { status: dbStatus === 'online' ? '🟢 ONLINE' : '🔴 OFFLINE' },
+        sources: [
+          { name: 'source_a', status: '🟢 ONLINE' },
+          { name: 'source_b', status: '🟢 ONLINE' }
+        ]
+      }
     };
   });
-  }
+}
