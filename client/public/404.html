@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>نرخ - تابلو قیمت لحظه‌ای بازار</title>
+    <script>
+      // این اسکریپت آدرس فعلی را می‌خواند و به صفحه اصلی هدایت می‌کند تا مسیردهی ری‌اکت به درستی کار کند
+      var pathSegmentsToKeep = 1; // تنظیم برای نام ریپازیتوری /Nerkh/
+      var l = window.location;
+      var repoName = '/' + l.pathname.split('/')[1];
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        repoName + '/?p=/' + l.pathname.slice(repoName.length).split('/').filter(Boolean).join('/') +
+        (l.search ? '&' + l.search.slice(1) : '') +
+        l.hash
+      );
+    </script>
+  </head>
+  <body>
+    <div style="text-align: center; margin-top: 50px; font-family: Tahoma, sans-serif; color: #666;">
+      <h3>در حال بارگذاری تابلو قیمت بازار...</h3>
+    </div>
+  </body>
+</html>
