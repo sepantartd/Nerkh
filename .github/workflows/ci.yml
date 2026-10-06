@@ -1,0 +1,32 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install Server Dependencies & Test
+      run: |
+        cd server
+        npm install
+        npx tsc --noEmit
+
+    - name: Install Client Dependencies & Build
+      run: |
+        cd client
+        npm install
+        npm run build
+        
