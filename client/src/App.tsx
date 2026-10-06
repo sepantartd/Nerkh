@@ -22,7 +22,7 @@ export default function App() {
     try {
       setLoading(true);
       // آدرس ورکر کلادفلر خود را اینجا قرار دهید یا از حالت تستی استفاده کنید
-      const res = await fetch('https://orange-night-57.workers.dev/api/v1/latest');
+      const res = await fetch('https://damp-snow-34c6.sepanta2003s.workers.dev/api/v1/latest');
       const json = await res.json();
       if (json.success) {
         setData(json.data);
