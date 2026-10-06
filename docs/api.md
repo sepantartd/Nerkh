@@ -28,3 +28,12 @@ Base URL: `http://localhost:3000/api/v1`
     }
   ]
 }
+
+2. Get Asset History
+ * URL: /history/:symbol
+ * Method: GET
+ * Parameters: symbol (e.g., USD, EUR, GOLD_18K)
+3. Health Check
+ * URL: /health
+ * Method: GET
+ * Description: Returns the status of database and data providers.
