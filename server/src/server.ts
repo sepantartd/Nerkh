@@ -1,13 +1,13 @@
 import Fastify from 'fastify';
 import dotenv from 'dotenv';
+import { apiV1Routes } from './routes/api.v1.ts';
 
 dotenv.config();
 
 const server = Fastify({ logger: true });
 
-server.get('/health', async (request, reply) => {
-  return { status: 'online', timestamp: Math.floor(Date.now() / 1000) };
-});
+// ثبت روت‌های API v1
+server.register(apiV1Routes);
 
 const start = async () => {
   try {
