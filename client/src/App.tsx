@@ -37,7 +37,7 @@ export default function App() {
   // دریافت داده‌ها از بک‌اند
   const fetchPrices = async () => {
     try {
-      const response = await fetch('/api/v1/latest');
+      const response = await fetch('https://orange-night-ba57.sepanta2003s.workers.dev/api/v1/latest');
       const data = await response.json();
       if (data.success) {
         setRecords(data.data);
