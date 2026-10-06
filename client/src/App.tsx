@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header.tsx';
 import { MarketCard } from './components/MarketCard.tsx';
 import { SearchAndFilter } from './components/SearchAndFilter.tsx';
+import { ChandStyleBoard } from './components/ChandStyleBoard.tsx';
+import { HistoricalComparison } from './components/HistoricalComparison.tsx';
+import { AssetStatsModal } from './components/AssetStatsModal.tsx';
+import { AlertManagerModal } from './components/AlertManagerModal.tsx';
 
 interface PriceRecord {
   symbol: string;
@@ -24,6 +28,11 @@ export default function App() {
   const [sortBy, setSortBy] = useState<string>('default');
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false);
+  
+  // States for modals
+  const [selectedRecord, setSelectedRecord] = useState<PriceRecord | null>(null);
+  const [isStatsOpen, setIsStatsOpen] = useState<boolean>(false);
+  const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
 
   // دریافت داده‌ها از بک‌اند
   const fetchPrices = async () => {
@@ -83,11 +92,29 @@ export default function App() {
     return 0;
   });
 
+  const allSymbols = records.map(r => r.symbol);
+
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col">
       <Header lastUpdate={lastUpdateText} isOnline={isOnline} />
 
       <main className="flex-1 max-w-4xl w-full mx-auto p-4">
+        {/* تابلو قیمت استایل Chand?! */}
+        <ChandStyleBoard records={records} />
+
+        {/* مقایسه تاریخی پیشرفته */}
+        <HistoricalComparison assets={records} />
+
+        {/* دکمه مدیریت هشدارها */}
+        <div className="flex justify-between items-center my-3">
+          <button
+            onClick={() => setIsAlertOpen(true)}
+            className="text-xs bg-gray-900 border border-gray-800 hover:border-gray-700 text-emerald-400 px-3 py-2 rounded-xl transition-colors"
+          >
+            🔔 تنظیم هشدارهای قیمتی
+          </button>
+        </div>
+
         <SearchAndFilter
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -104,24 +131,48 @@ export default function App() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {sortedRecords.map((record) => (
-              <MarketCard
-                key={record.symbol}
-                symbol={record.symbol}
-                price={record.price}
-                unit={record.unit}
-                change={record.change}
-                changePercent={record.change_percent}
-                ageSeconds={record.age_seconds}
-                status={record.status}
-                source={record.source}
-                isFavorite={favorites.includes(record.symbol)}
-                onToggleFavorite={toggleFavorite}
-              />
+              <div 
+                key={record.symbol} 
+                onClick={() => { setSelectedRecord(record); setIsStatsOpen(true); }}
+                className="cursor-pointer"
+              >
+                <MarketCard
+                  symbol={record.symbol}
+                  price={record.price}
+                  unit={record.unit}
+                  change={record.change}
+                  changePercent={record.change_percent}
+                  ageSeconds={record.age_seconds}
+                  status={record.status}
+                  source={record.source}
+                  isFavorite={favorites.includes(record.symbol)}
+                  onToggleFavorite={(sym) => {
+                    // جلوگیری از باز شدن مدال آمار هنگام کلیک رو ستاره علاقه‌مندی
+                    event?.stopPropagation();
+                    toggleFavorite(sym);
+                  }}
+                />
+              </div>
             ))}
           </div>
         )}
       </main>
+
+      {/* مدال آمار و جزئیات */}
+      <AssetStatsModal
+        isOpen={isStatsOpen}
+        onClose={() => setIsStatsOpen(false)}
+        record={selectedRecord}
+        history={[]}
+      />
+
+      {/* مدال مدیریت هشدارها */}
+      <AlertManagerModal
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        symbols={allSymbols}
+      />
     </div>
   );
-    }
-        
+  }
+          
